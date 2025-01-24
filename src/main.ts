@@ -5,7 +5,9 @@ import {
     BoxGeometry,
     MeshBasicMaterial,
     Mesh
-} from 'three'
+} from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import Case from "./case.ts";
 
 //#region generic threejs config
 const container = document.getElementById("app")
@@ -22,8 +24,12 @@ renderer.setSize(container.clientWidth, container.clientHeight)
 renderer.setAnimationLoop( animate );
 container.appendChild(renderer.domElement)
 
+const controls:OrbitControls = new OrbitControls(camera, renderer.domElement )
+controls.enablePan = false;
+
 function animate() {
     gameLoop()
+	controls.update();
 	renderer.render( scene, camera );
 }
 renderer.setAnimationLoop( animate );
@@ -35,16 +41,44 @@ window.addEventListener('resize', () => {
     renderer.setSize(container.clientWidth, container.clientHeight);
 });
 
+
+
 //#endregion 
 
 
-const geometry = new BoxGeometry( 1, 1, 1 );
-const material = new MeshBasicMaterial( { color: 0x00ff00 } );
-const cube: Mesh = new Mesh( geometry, material );
-scene.add( cube );
+//#region setup logic
+
+//load the config
+
+const response = await fetch("/config.json");
+const file : {
+    p:number,
+    l:number,
+    h:number,
+    fireStarts: [{x:number,y:number}]
+} = await response.json();
+console.log("cool file", file);
+
+//spawn the cubes
+const grid: Case[][] = [];
+
+for (let y = 0; y < file.h; y++) {
+    const row : Case[]= [];
+    for (let x = 0; x < file.l; x++) {
+        const isOnFire = file.fireStarts.some(start => start.x === x && start.y === y);
+        const recenteredX = x - (file.l/2)
+        const recenteredY = y - (file.h/2)
+        row.push(new Case(recenteredX,recenteredY, scene, isOnFire ? 'en feu' : 'sain'));
+    }
+    grid.push(row);
+}
+
+console.log(grid);
+
+//#endregion
+
 
 
 function gameLoop(){
-    cube.rotation.x += 0.01;
-	cube.rotation.y += 0.01;
+    
 }

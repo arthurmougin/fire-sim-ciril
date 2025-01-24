@@ -6,13 +6,10 @@
     "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server dist/"
   },
   "compilerOptions": {
-    "lib": ["ES2020", "DOM", "DOM.Iterable"]
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["@types/three"]
   },
   "imports": {
-    "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.0",
-    "@types/three": "npm:@types/three@^0.172.0",
-    "three": "npm:three@^0.172.0",
-    "vite": "npm:vite@^6.0.1"
   },
   "lint": {
     "rules":{
