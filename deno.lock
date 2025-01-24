@@ -4,6 +4,7 @@
     "npm:@deno/vite-plugin@1": "1.0.2_vite@6.0.11",
     "npm:@types/three@0.172": "0.172.0",
     "npm:create-vite-extra@latest": "3.0.0",
+    "npm:three@*": "0.172.0",
     "npm:three@0.172": "0.172.0",
     "npm:vite@*": "6.0.11",
     "npm:vite@^6.0.1": "6.0.11"
