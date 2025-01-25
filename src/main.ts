@@ -44,7 +44,7 @@ window.addEventListener("resize", () => {
 
 //load the config
 async function setup() {
-  const response = await fetch("/config.json");
+  const response = await fetch("./config.json");
   const config: {
     p: number;
     l: number;
