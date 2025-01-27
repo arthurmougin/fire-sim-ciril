@@ -20,7 +20,8 @@ export class Node {
         const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
         const material = new THREE.MeshBasicMaterial({ color: this.getColorByEtat(etat) });
         this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.position.set(x, y, 0);
+        
+        this.mesh.position.set(x, 0, y);
         
         parent.add( this.mesh );
     }

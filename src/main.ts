@@ -1,5 +1,7 @@
-import { Object3D, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { EquirectangularReflectionMapping, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GroundedSkybox } from 'three/addons/objects/GroundedSkybox.js';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import Node, { Etat } from "./node.ts";
 
 //#region generic threejs config
@@ -12,15 +14,24 @@ const scene: Scene = new Scene();
 const camera = new PerspectiveCamera(
   75,
   container.clientWidth / container.clientHeight,
-  0.1,
-  100,
+  1,
+  1000,
 );
-camera.position.z = 5;
+camera.position.set( - 20, 7, 20 );
+camera.lookAt( 0, 4, 0 );
 
 const renderer = new WebGLRenderer();
 renderer.setSize(container.clientWidth, container.clientHeight);
 renderer.setAnimationLoop(animate);
 container.appendChild(renderer.domElement);
+
+const exrloader = new EXRLoader();
+const exrTexture = exrloader.load("./DayEnvironmentHDRI021_2K-HDR.exr")
+exrTexture.mapping = EquirectangularReflectionMapping;
+
+const skybox = new GroundedSkybox( exrTexture, 15, 100 );
+skybox.position.y = 15 - 0.01;
+scene.add( skybox );
 
 const controls: OrbitControls = new OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
@@ -44,6 +55,8 @@ window.addEventListener("resize", () => {
 
 //load the config
 async function setup() {
+  const gridScale = 3;
+
   const response = await fetch("./config.json");
   const config: {
     p: number;
@@ -54,8 +67,10 @@ async function setup() {
   console.log("cool file", config);
 
   const parent = new Object3D();
-  parent.position.x = -config.l / 2;
-  parent.position.y = -config.h / 2;
+  parent.position.x = (-config.l+1) / 2 * gridScale;
+  parent.position.z = gridScale / 2;
+  parent.position.z = (-config.h+1) / 2 * gridScale;
+  parent.scale.setScalar(gridScale)
   scene.add(parent);
 
   //spawn the cubes
@@ -141,9 +156,27 @@ async function setup() {
     );
   }
 
+  function resetFunction(){ 
+    burningNodes.length = 0;
+    for (let x = 0; x < config.l; x++) {
+      for (let y = 0; y < config.h; y++) {
+        const isOnFire = config.fireStarts.some((start) =>
+          start.x === x && start.y === y
+        );
+        grid[x][y].setEtat(isOnFire ? Etat.EnFeu : Etat.Sain)
+        if (isOnFire) burningNodes.push(grid[x][y]);
+      }
+    }
+  }
+
   //@ts-ignore Saviez vous que l'on peux référencer un id html en nome de variable ? (a ne pas utiliser dans un contexte pro)
   next.addEventListener("click", () => {
     gameLoop();
+  });
+
+  //@ts-ignore même chose
+  reset.addEventListener("click", () => {
+    resetFunction();
   });
 }
 
