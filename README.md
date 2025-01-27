@@ -1,13 +1,6 @@
 # fire-sim-ciril
 
 ## Sujet
-> Bonjour M Mougin,
-> 
-> Je reviens vers vous suite à notre échange d’hier. Vous trouverez ci-dessous l’énoncé du programme à réaliser dans le cadre de notre processus de recrutement.
-> Vous préparez tranquillement cette implémentation que vous présenterez lors de l’entretien technique que nous positionnerons par la suite. Cela nous permettra d’avoir un support technique pour discuter de votre code.
-> Pour ce test, nous vous proposons d’utiliser (Javascript ou Typescript avec un rendu en 3D utilisant Three.js).
-> 
-> Énoncé :
 > L'objectif est d'implémenter une simulation de la propagation d’un feu de forêt.
 > Le code doit être rédigé exclusivement en anglais.
 > 
@@ -28,13 +21,3 @@
 > - Quels sont vos choix architecturaux
 > 
 > - Comment vous présentez votre travail une fois réalisé
-> 
-> Si vous avez des questions, n’hésitez pas à me contacter par mail.
-> 
-> Le test est à nous retourner sous un délai d’une semaine.
-> 
-> Une fois celui-ci réalisé, je vous invite à nous envoyer le lien Git afin que nous puissions poursuivre le processus de recrutement.
-> 
-> Je vous remercie de me confirmer la bonne réception de ce mail.
-> 
-> Bon courage !
