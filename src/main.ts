@@ -1,57 +1,9 @@
-import { EquirectangularReflectionMapping, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { GroundedSkybox } from 'three/addons/objects/GroundedSkybox.js';
-import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+import { Group } from "three";
 import Node, { Etat } from "./node.ts";
+import App from "./app.ts";
 
-//#region generic threejs config
-const container = document.getElementById("app");
-
-if (!container) throw new Error("Missing App");
-
-const scene: Scene = new Scene();
-
-const camera = new PerspectiveCamera(
-  75,
-  container.clientWidth / container.clientHeight,
-  1,
-  1000,
-);
-camera.position.set( - 20, 7, 20 );
-camera.lookAt( 0, 4, 0 );
-
-const renderer = new WebGLRenderer();
-renderer.setSize(container.clientWidth, container.clientHeight);
-renderer.setAnimationLoop(animate);
-container.appendChild(renderer.domElement);
-
-const exrloader = new EXRLoader();
-const exrTexture = exrloader.load("./DayEnvironmentHDRI021_2K-HDR.exr")
-exrTexture.mapping = EquirectangularReflectionMapping;
-
-const skybox = new GroundedSkybox( exrTexture, 15, 100 );
-skybox.position.y = 15 - 0.01;
-scene.add( skybox );
-
-const controls: OrbitControls = new OrbitControls(camera, renderer.domElement);
-controls.enablePan = false;
-
-function animate() {
-  controls.update();
-  renderer.render(scene, camera);
-}
-renderer.setAnimationLoop(animate);
-
-//resize
-window.addEventListener("resize", () => {
-  camera.aspect = container.clientWidth / container.clientHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(container.clientWidth, container.clientHeight);
-});
-
-//#endregion
-
-//#region setup logic
+const app = App.getInstance();
+app.animate()
 
 //load the config
 async function setup() {
@@ -66,12 +18,12 @@ async function setup() {
   } = await response.json();
   console.log("cool file", config);
 
-  const parent = new Object3D();
+  const parent = new Group();
   parent.position.x = (-config.l+1) / 2 * gridScale;
   parent.position.z = gridScale / 2;
   parent.position.z = (-config.h+1) / 2 * gridScale;
   parent.scale.setScalar(gridScale)
-  scene.add(parent);
+  app.scene.add(parent);
 
   //spawn the cubes
   const grid: Node[][] = [];
@@ -98,17 +50,11 @@ async function setup() {
 
     if (grid[ref.x - 1]) {
       const gridX = grid[ref.x - 1];
-
-      if (gridX[ref.y - 1]) returnedList.push(gridX[ref.y - 1]);
       if (gridX[ref.y]) returnedList.push(gridX[ref.y]);
-      if (gridX[ref.y + 1]) returnedList.push(gridX[ref.y + 1]);
     }
     if (grid[ref.x + 1]) {
       const gridX = grid[ref.x + 1];
-
-      if (gridX[ref.y - 1]) returnedList.push(gridX[ref.y - 1]);
       if (gridX[ref.y]) returnedList.push(gridX[ref.y]);
-      if (gridX[ref.y + 1]) returnedList.push(gridX[ref.y + 1]);
     }
     const gridX = grid[ref.x];
 
@@ -144,6 +90,7 @@ async function setup() {
     });
 
     burningNodes.push(...catchingFireNodes);
+
     burnedNodes.forEach((burnedNode) => {
       const index = burningNodes.indexOf(burnedNode);
       if (index > -1) {
@@ -182,4 +129,3 @@ async function setup() {
 
 setup();
 
-//#endregion

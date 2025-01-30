@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import { Group, Object3D, Vector3 } from "three";
+import App from "./app.ts";
 
 export enum Etat {
   Sain = 'sain',
@@ -10,38 +11,68 @@ export class Node {
     x: number;
     y: number;
     etat: Etat;
-    mesh: THREE.Mesh;
+    oldEtat: Etat;
 
-    constructor(x: number, y: number, parent : THREE.Object3D, etat: Etat = Etat.Sain) {
+    root: Group;
+
+    constructor(x: number, y: number, parent : Object3D, etat: Etat = Etat.Sain) {
         this.x = x;
         this.y = y;
+
+        this.root = new Group();
+        this.root.position.set(x, Math.random()*-0.5, y);
+        this.root.rotateOnAxis(new Vector3(0,1,0),Math.random()*2*Math.PI)
+        this.root.scale.set(0.5,0.5,0.5)
+        
         this.etat = etat;
-        
-        const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        const material = new THREE.MeshBasicMaterial({ color: this.getColorByEtat(etat) });
-        this.mesh = new THREE.Mesh(geometry, material);
-        
-        this.mesh.position.set(x, 0, y);
-        
-        parent.add( this.mesh );
+        this.SetMeshByEtat(etat)
+        this.oldEtat = etat;
+        parent.add( this.root );
     }
 
-    private getColorByEtat(etat: Etat): number {
+    /**
+     * NOTE on model change,
+     * One possible evolution would be to use instanced meshes if perfs becomes a problem.
+     */
+    private SetMeshByEtat(etat: Etat) {
+        console.log(etat)
+        if(this.oldEtat ==  etat) return;
+
+        const app = App.getInstance()
+
         switch (etat) {
             case Etat.Sain:
-                return 0x00ff00; // Vert
+                app.tree.then(tree => {
+                    this.root.children.map(child => child.removeFromParent())
+                    this.root.add(tree.scene.clone())
+                })
+
+
+                break; // Vert
             case Etat.EnFeu:
-                return 0xff0000; // Rouge
+                app.treeOnFire.then(tree => {
+                    this.root.children.map(child => child.removeFromParent())
+                    this.root.add(tree.scene.clone())
+                })
+
+                break; // Rouge
             case Etat.Eteint:
-                return 0x0000ff; // Bleu
+                app.treeWithoutLeaves.then(tree => {
+                    this.root.children.map(child => child.removeFromParent())
+                    this.root.add(tree.scene.clone())
+                })
+
+
+                break 
             default:
-                return 0xffffff; // Blanc
+                break;
         }
+        this.oldEtat = etat;
     }
 
     setEtat(etat: Etat) {
         this.etat = etat;
-        (this.mesh.material as THREE.MeshBasicMaterial).color.set(this.getColorByEtat(etat));
+        this.SetMeshByEtat(etat)
     }
 }
 
